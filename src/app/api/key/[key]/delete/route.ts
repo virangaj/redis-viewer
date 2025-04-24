@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { redisClient } from "../../../../lib/redis";
+import { getRedisClient } from "@/lib/redis-client"; // Adjust the path as necessary
 
 export async function DELETE(
   req: Request,
@@ -8,11 +8,14 @@ export async function DELETE(
   const { key } = params;
 
   try {
-    await redisClient.del(key);
+    const client = await getRedisClient();
+    await client.del(key);
+    await client.quit();
+
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json(
-      { error: `Failed to delete key ${error}` },
+      { error: `Failed to delete key: ${(error as Error).message}` },
       { status: 500 }
     );
   }

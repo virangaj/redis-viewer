@@ -1,24 +1,28 @@
-import { redisClient } from "@/app/lib/redis";
 import { NextResponse } from "next/server";
+import { getRedisClient } from "@/lib/redis-client";
 
 export async function GET() {
   try {
-    const keys = await redisClient.keys("*");
-    if (keys.length === 0) {
-      return NextResponse.json({ message: "No keys found" });
-    }
-    const keysInfo = await Promise.all(
+    const client = await getRedisClient();
+    const keys = await client.keys("*");
+
+    const result = await Promise.all(
       keys.map(async (key) => {
-        const type = await redisClient.type(key);
-        const ttl = await redisClient.ttl(key);
-        return { key, type, ttl, message: "success" };
+        const type = await client.type(key);
+        const ttl = await client.ttl(key);
+        return { key, type, ttl };
       })
     );
-    return NextResponse.json(keysInfo);
-  } catch (error) {
+
+    await client.quit();
     return NextResponse.json(
-      { error: `Failed to fetch keys ${error}` },
-      { status: 500 }
+      { data: result, message: "success" },
+      { status: 200 }
+    );
+  } catch (err) {
+    return NextResponse.json(
+      { error: (err as Error).message },
+      { status: 400 }
     );
   }
 }

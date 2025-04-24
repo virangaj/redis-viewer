@@ -52,7 +52,7 @@ export default function Connection() {
     });
 
     const data = await res.json();
-    setStatus(data.message);
+    setStatus("Connention is completed");
     if (data.success) {
       localStorage.setItem("redis_url", customUrl || url);
       localStorage.setItem("redis_password", customPassword || password);
@@ -70,6 +70,7 @@ export default function Connection() {
     setPassword("");
     setKeys([]);
     setSelectedKey(null);
+    setStatus("");
     localStorage.removeItem("redis_url");
     localStorage.removeItem("redis_password");
     toast("Disconnected", { icon: "🛑" });

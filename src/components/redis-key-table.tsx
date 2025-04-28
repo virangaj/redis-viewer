@@ -1,62 +1,60 @@
 "use client";
-import React from "react";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { RedisKey } from "@/models/models";
 
-interface RedisKey {
-  key: string;
-  type: string;
-  ttl: number;
-}
-
-interface Props {
+interface RedisKeyTableProps {
   keys: RedisKey[];
-  viewValue: (key: string) => void;
-  deleteKey: (key: string) => void;
+  viewValue?: (key: string) => Promise<void>;
+  deleteKey?: (key: string) => Promise<void>;
 }
 
-const RedisKeyTable: React.FC<Props> = ({ keys, viewValue, deleteKey }) => {
+export default function RedisKeyTable({ keys }: RedisKeyTableProps) {
+  console.log(keys);
   return (
-    <table className="min-w-full table-auto">
-      <thead>
-        <tr>
-          <th className="px-4 py-2">Key</th>
-          <th className="px-4 py-2">Type</th>
-          <th className="px-4 py-2">TTL</th>
-          <th className="px-4 py-2">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {keys.length === 0 ? (
-          <tr>
-            <td colSpan={4} className="text-center py-4">
-              No keys found
-            </td>
-          </tr>
-        ) : (
-          keys.map(({ key, type, ttl }) => (
-            <tr key={key}>
-              <td className="border px-4 py-2">{key}</td>
-              <td className="border px-4 py-2">{type}</td>
-              <td className="border px-4 py-2">{ttl}</td>
-              <td className="border px-4 py-2">
-                <button
-                  onClick={() => viewValue(key)}
-                  className="bg-blue-500 text-white px-4 py-1 mr-2 rounded"
-                >
-                  View
-                </button>
-                <button
-                  onClick={() => deleteKey(key)}
-                  className="bg-red-500 text-white px-4 py-1 rounded"
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))
-        )}
-      </tbody>
-    </table>
+    <div>
+      {keys.length > 0 ? (
+        <Table className="w-full">
+          <TableCaption>A list of your recent invoices.</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-left w-[100px] text-gray-400">
+                Index
+              </TableHead>
+              <TableHead className="text-left w-[200px] text-gray-400">
+                Key
+              </TableHead>
+              <TableHead className="text-left w-[100px] text-gray-400">
+                Type
+              </TableHead>
+              <TableHead className="text-left w-[100px] text-gray-400">
+                TTL
+              </TableHead>
+              <TableHead className="text-left text-gray-400">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          {keys.map((key: RedisKey, index: number) => (
+            <TableBody key={index}>
+              <TableRow>
+                <TableCell>{index + 1}</TableCell>
+                <TableCell>{key.key}</TableCell>
+                <TableCell>{key.type}</TableCell>
+                <TableCell>{key.ttl}</TableCell>
+                <TableCell>{key.ttl}</TableCell>
+              </TableRow>
+            </TableBody>
+          ))}
+        </Table>
+      ) : (
+        <p>No keys found</p>
+      )}
+    </div>
   );
-};
-
-export default RedisKeyTable;
+}

@@ -30,6 +30,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        data-new-gr-c-s-check-loaded="14.1232.0"
+        data-gr-ext-installed=""
       >
         <ThemeProvider
           attribute="class"
@@ -37,7 +39,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Toaster position="top-right" expand={true} richColors closeButton/>
+          <Toaster position="top-right" expand={true} richColors closeButton />
           <Header />
           <main>{children}</main>
           <Footer />

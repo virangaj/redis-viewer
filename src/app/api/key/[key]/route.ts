@@ -1,11 +1,14 @@
+"use server";
 import { NextResponse } from "next/server";
 import { getRedisClient } from "@/lib/redis-client"; // <- make sure this path is correct
+import { Logger } from "@/utils/logger";
+const logger = await Logger({ prefix: "KEY_FETCH_API" });
 
 export async function GET(
   req: Request,
   { params }: { params: { key: string } }
 ) {
-  const { key } = params;
+  const { key } = await params;
 
   try {
     // Get the Redis client instance
@@ -14,6 +17,8 @@ export async function GET(
     // Get the type of the key
     const type = await client.type(key);
     let value: unknown;
+    logger.info(`Fetched key: ${key}`);
+    
 
     // Retrieve the value based on the type of Redis key
     switch (type) {

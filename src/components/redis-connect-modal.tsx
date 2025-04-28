@@ -25,7 +25,7 @@ export default function RedisConnectModal({
     <div>
       <h1 className="text-3xl font-bold mb-4 text-center">Connect to Your Redis Instance</h1>
 
-      <div className="border p-4 rounded shadow-md min-w-lg mx-auto mt-6">
+      <div className="border p-4 rounded shadow-md w-96 mx-auto mt-6">
         <Label htmlFor="host">Host</Label>
         <Input
           type="text"

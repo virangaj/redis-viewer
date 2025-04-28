@@ -2,23 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-import RedisConnectModal from "./redis-connect-modal";
-import RedisKeyViewer from "./redis-key-viewer";
-import RedisKeyTable from "./redis-key-table";
+import { KeyDetails, RedisKey } from "@/models/models";
 import { toast } from "sonner";
-
-interface RedisKey {
-  key: string;
-  type: string;
-  ttl: number;
-}
-
-interface KeyDetails {
-  key: string;
-  type: string;
-  value: unknown;
-  ttl: number;
-}
+import RedisConnectModal from "./redis-connect-modal";
+import RedisKeyTable from "./redis-key-table";
+import RediKeyView from "./redis-key-view";
 
 export default function Connection() {
   const [url, setUrl] = useState("");
@@ -27,8 +15,15 @@ export default function Connection() {
   const [status, setStatus] = useState("");
   const [keys, setKeys] = useState<RedisKey[]>([]);
   const [selectedKey, setSelectedKey] = useState<KeyDetails | null>(null);
+  const [hasMounted, setHasMounted] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState(new Date());
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
+    if (!hasMounted) return;
+
     const storedUrl = localStorage.getItem("redis_url");
     const storedPassword = localStorage.getItem("redis_password");
     if (storedUrl) {
@@ -36,7 +31,7 @@ export default function Connection() {
       setPassword(storedPassword || "");
       connectToRedis(storedUrl, storedPassword || "");
     }
-  }, []);
+  }, [hasMounted]);
 
   const connectToRedis = async (
     customUrl?: string,
@@ -79,7 +74,10 @@ export default function Connection() {
   const fetchKeys = () => {
     fetch("/api/keys")
       .then((res) => res.json())
-      .then((data) => setKeys(data));
+      .then((data) => {
+        setKeys(data.data);
+        // console.log(data.data);
+      });
   };
 
   const viewValue = async (key: string) => {
@@ -100,7 +98,7 @@ export default function Connection() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="w-full min-h-2/3">
       {!connected && (
         <RedisConnectModal
           url={url}
@@ -110,6 +108,11 @@ export default function Connection() {
           connectToRedis={connectToRedis}
           status={status}
         />
+      )}
+      {connected && (
+        <div className="flex items-center justify-between mx-auto">
+          <RediKeyView keys={keys} viewValue={viewValue} deleteKey={deleteKey} />
+        </div>
       )}
       {connected && <button onClick={disconnect}>Disconnect</button>}
     </div>

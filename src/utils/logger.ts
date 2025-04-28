@@ -1,6 +1,7 @@
+"use server";
 import chalk from "chalk";
 
-export const Logger = (options: { prefix: string }) => {
+export const Logger = async (options: { prefix: string }) => {
   const { prefix = "App" } = options;
 
   const logMessage = (level: "info" | "error", message: string) => {

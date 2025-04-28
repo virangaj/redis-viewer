@@ -1,28 +1,28 @@
 "use client";
 import {
   Table,
-  TableBody,
-  TableCaption,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { RedisKey } from "@/models/models";
+import RedisKeyTableRow from "./redis-key-table-row";
 
 interface RedisKeyTableProps {
   keys: RedisKey[];
-  viewValue?: (key: string) => Promise<void>;
-  deleteKey?: (key: string) => Promise<void>;
+  viewValue: (key: string) => Promise<void>;
+  deleteKey: (key: string) => Promise<void>;
 }
 
-export default function RedisKeyTable({ keys }: RedisKeyTableProps) {
-  console.log(keys);
+export default function RedisKeyTable({
+  keys,
+  deleteKey,
+  viewValue,
+}: RedisKeyTableProps) {
   return (
     <div>
       {keys.length > 0 ? (
-        <Table className="w-full">
-          <TableCaption>A list of your recent invoices.</TableCaption>
+        <Table className="w-[100%]">
           <TableHeader>
             <TableRow>
               <TableHead className="text-left w-[100px] text-gray-400">
@@ -37,23 +37,21 @@ export default function RedisKeyTable({ keys }: RedisKeyTableProps) {
               <TableHead className="text-left w-[100px] text-gray-400">
                 TTL
               </TableHead>
-              <TableHead className="text-left text-gray-400">Actions</TableHead>
+              <TableHead className="text-left text-gray-400 w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           {keys.map((key: RedisKey, index: number) => (
-            <TableBody key={index}>
-              <TableRow>
-                <TableCell>{index + 1}</TableCell>
-                <TableCell>{key.key}</TableCell>
-                <TableCell>{key.type}</TableCell>
-                <TableCell>{key.ttl}</TableCell>
-                <TableCell>{key.ttl}</TableCell>
-              </TableRow>
-            </TableBody>
+            <RedisKeyTableRow
+              key={index}
+              data={key}
+              index={index}
+              deleteKey={deleteKey}
+              viewValue={viewValue}
+            />
           ))}
         </Table>
       ) : (
-        <p>No keys found</p>
+        <p className="text-center text-gray-400 mt-10">No keys found</p>
       )}
     </div>
   );

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { KeyDetails, RedisKey } from "@/models/models";
 import { toast } from "sonner";
 import RedisConnectModal from "./redis-connect-modal";
 import RedisKeyTable from "./redis-key-table";
 import RediKeyView from "./redis-key-view";
+import { DraggableResize } from "./DraggableResize";
 
 export default function Connection() {
   const [url, setUrl] = useState("");
@@ -17,6 +18,38 @@ export default function Connection() {
   const [selectedKey, setSelectedKey] = useState<KeyDetails | null>(null);
   const [hasMounted, setHasMounted] = useState(false);
   const [lastRefresh, setLastRefresh] = useState(new Date());
+  const [leftWidth, setLeftWidth] = useState(800); // initial width in px
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+
+  const startDragging = () => {
+    isDragging.current = true;
+  };
+
+  const stopDragging = () => {
+    isDragging.current = false;
+  };
+
+  const handleDragging = (e: MouseEvent) => {
+    if (!isDragging.current || !containerRef.current) return;
+
+    const containerX = containerRef.current.getBoundingClientRect().left;
+    const newLeftWidth = e.clientX - containerX;
+
+    setLeftWidth(newLeftWidth);
+  };
+
+  // Attach/remove mousemove globally
+  useEffect(() => {
+    document.addEventListener("mousemove", handleDragging);
+    document.addEventListener("mouseup", stopDragging);
+
+    return () => {
+      document.removeEventListener("mousemove", handleDragging);
+      document.removeEventListener("mouseup", stopDragging);
+    };
+  }, []);
+
   useEffect(() => {
     setHasMounted(true);
   }, []);
@@ -72,10 +105,12 @@ export default function Connection() {
   };
 
   const fetchKeys = () => {
+    setKeys([]);
     fetch("/api/keys")
       .then((res) => res.json())
       .then((data) => {
         setKeys(data.data);
+        setLastRefresh(new Date());
         // console.log(data.data);
       });
   };
@@ -87,14 +122,9 @@ export default function Connection() {
   };
 
   const deleteKey = async (key: string) => {
-    const confirmDelete = confirm(
-      `Are you sure you want to delete the key: ${key}?`
-    );
-    if (confirmDelete) {
-      await fetch(`/api/key/${key}/delete`, { method: "DELETE" });
-      setKeys(keys.filter((k) => k.key !== key));
-      toast.success(`Deleted key: ${key}`);
-    }
+    await fetch(`/api/key/${key}/delete`, { method: "DELETE" });
+    setKeys(keys.filter((k) => k.key !== key));
+    toast.success(`Deleted key: ${key}`);
   };
 
   return (
@@ -109,11 +139,28 @@ export default function Connection() {
           status={status}
         />
       )}
-      {connected && (
-        <div className="flex items-center justify-between mx-auto">
-          <RediKeyView keys={keys} viewValue={viewValue} deleteKey={deleteKey} />
+      <div
+        ref={containerRef}
+        className="flex w-full h-96 bg-gray-100 dark:bg-gray-800"
+      >
+        <div style={{ width: leftWidth }} className="p-4">
+          {connected && (
+            <RediKeyView
+              keys={keys}
+              viewValue={viewValue}
+              deleteKey={deleteKey}
+              lastRefresh={lastRefresh}
+              fetchKeys={fetchKeys}
+            />
+          )}
         </div>
-      )}
+        <div
+          onMouseDown={startDragging}
+          className="w-1 cursor-col-resize bg-gray-400"
+        />
+        <div className="flex-1 p-4">Right Panel</div>
+      </div>
+
       {connected && <button onClick={disconnect}>Disconnect</button>}
     </div>
   );

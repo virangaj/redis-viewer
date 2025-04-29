@@ -23,10 +23,10 @@ const RedisKeyTableRow = ({
   return (
     <TableBody key={index}>
       <TableRow>
-        <TableCell>{index + 1}</TableCell>
         <TableCell>{data.key}</TableCell>
         <TableCell>{data.type}</TableCell>
         <TableCell>{data.ttl}</TableCell>
+        <TableCell>{data.memoryFormatted}</TableCell>
         <TableCell>
           <div className="flex items-center gap-4">
             <SquareArrowOutUpRight

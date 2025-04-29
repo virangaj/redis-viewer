@@ -6,7 +6,7 @@ const logger = await Logger({ prefix: "KEY_DELETE_API" });
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { key: string } }
+  { params }: { params: Promise<{ key: string }> }
 ) {
   const { key } = await params;
 

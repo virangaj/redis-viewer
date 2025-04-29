@@ -2,12 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { KeyDetails, RedisKey } from "@/models/models";
+import { RedisKey } from "@/models/models";
 import { toast } from "sonner";
 import RedisConnectModal from "./redis-connect-modal";
-import RedisKeyTable from "./redis-key-table";
 import RediKeyView from "./redis-key-view";
-import { DraggableResize } from "./DraggableResize";
+import ViewKeyData from "./view-key-data";
 
 export default function Connection() {
   const [url, setUrl] = useState("");
@@ -15,7 +14,7 @@ export default function Connection() {
   const [connected, setConnected] = useState(false);
   const [status, setStatus] = useState("");
   const [keys, setKeys] = useState<RedisKey[]>([]);
-  const [selectedKey, setSelectedKey] = useState<KeyDetails | null>(null);
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [hasMounted, setHasMounted] = useState(false);
   const [lastRefresh, setLastRefresh] = useState(new Date());
   const [leftWidth, setLeftWidth] = useState(800); // initial width in px
@@ -116,9 +115,7 @@ export default function Connection() {
   };
 
   const viewValue = async (key: string) => {
-    const response = await fetch(`/api/key/${key}`);
-    const data = await response.json();
-    setSelectedKey(data);
+    setSelectedKey(key);
   };
 
   const deleteKey = async (key: string) => {
@@ -139,12 +136,12 @@ export default function Connection() {
           status={status}
         />
       )}
-      <div
-        ref={containerRef}
-        className="flex w-full h-96 bg-gray-100 dark:bg-gray-800"
-      >
-        <div style={{ width: leftWidth }} className="p-4">
-          {connected && (
+      {connected && (
+        <div
+          ref={containerRef}
+          className="flex w-full h-96 bg-gray-100 dark:bg-gray-800"
+        >
+          <div style={{ width: leftWidth }} className="p-4">
             <RediKeyView
               keys={keys}
               viewValue={viewValue}
@@ -152,14 +149,16 @@ export default function Connection() {
               lastRefresh={lastRefresh}
               fetchKeys={fetchKeys}
             />
-          )}
+          </div>
+          <div
+            onMouseDown={startDragging}
+            className="w-1 cursor-col-resize bg-gray-400"
+          />
+          <div className="flex-1 p-4">
+            <ViewKeyData selectedKey={selectedKey} />
+          </div>
         </div>
-        <div
-          onMouseDown={startDragging}
-          className="w-1 cursor-col-resize bg-gray-400"
-        />
-        <div className="flex-1 p-4">Right Panel</div>
-      </div>
+      )}
 
       {connected && <button onClick={disconnect}>Disconnect</button>}
     </div>

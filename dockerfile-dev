@@ -1,0 +1,13 @@
+# dockerfile-dev
+FROM node:20.9.0 AS redis-viewer-base
+
+WORKDIR /usr/src/app
+
+RUN npm -v
+RUN npm install -g npm@10.1.0
+
+COPY package.json package-lock.json* ./
+
+RUN npm install
+
+RUN npm install -g rimraf

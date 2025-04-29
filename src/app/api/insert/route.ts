@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
       insertedType = "string";
     } else if (Array.isArray(value)) {
       if (value.every((v) => typeof v === "string")) {
-        await client.rPush(key, ...value); // for arrays of strings
+        await client.rPush(key, [...value]); // for arrays of strings
         insertedType = "list";
       } else {
         throw new Error(

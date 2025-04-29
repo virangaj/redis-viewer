@@ -25,9 +25,6 @@ export default function RedisKeyTable({
         <Table className="w-[100%]">
           <TableHeader>
             <TableRow>
-              <TableHead className="text-left w-[100px] text-gray-400">
-                Index
-              </TableHead>
               <TableHead className="text-left w-[200px] text-gray-400">
                 Key
               </TableHead>
@@ -36,6 +33,9 @@ export default function RedisKeyTable({
               </TableHead>
               <TableHead className="text-left w-[100px] text-gray-400">
                 TTL
+              </TableHead>
+              <TableHead className="text-left w-[100px] text-gray-400">
+                size
               </TableHead>
               <TableHead className="text-left text-gray-400 w-[100px]">Actions</TableHead>
             </TableRow>

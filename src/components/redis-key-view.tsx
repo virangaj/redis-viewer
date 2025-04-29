@@ -48,7 +48,7 @@ const RediKeyView = ({
 
   return (
     <>
-      <div className="flex items-center justify-between text-gray-500 text-sm w-[100%]">
+      <div className="flex items-center justify-between font-color-gray text-sm w-[100%]">
         <div>
           <p>Results: {keys.length}</p>
         </div>

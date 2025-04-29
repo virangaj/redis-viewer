@@ -1,26 +1,23 @@
 "use server";
 import { NextResponse } from "next/server";
-import { getRedisClient } from "@/lib/redis-client"; // <- make sure this path is correct
+import { getRedisClient } from "@/lib/redis-client";
 import { Logger } from "@/utils/logger";
+
 const logger = await Logger({ prefix: "KEY_FETCH_API" });
 
 export async function GET(
   req: Request,
-  { params }: { params: { key: string } }
+  { params }: { params: Promise<{ key: string }> }
 ) {
   const { key } = await params;
 
   try {
-    // Get the Redis client instance
     const client = await getRedisClient();
 
-    // Get the type of the key
     const type = await client.type(key);
     let value: unknown;
     logger.info(`Fetched key: ${key}`);
-    
 
-    // Retrieve the value based on the type of Redis key
     switch (type) {
       case "string":
         value = await client.get(key);
@@ -41,18 +38,28 @@ export async function GET(
         value = "Unsupported type or key not found";
     }
 
-    // Get TTL (time to live) of the key
-    const ttl = await client.ttl(key);
+    const ttl = await client.ttl(key); // in seconds
+    const memoryBytes = await client.memoryUsage(key); // in bytes
 
-    // Close Redis client connection
+    // Formatting
+    const expireAt = ttl > 0 ? new Date(Date.now() + ttl * 1000).toISOString() : null;
+    const memoryUsageFormatted = memoryBytes
+      ? memoryBytes < 1024
+        ? `${memoryBytes} Bytes`
+        : memoryBytes < 1024 * 1024
+        ? `${(memoryBytes / 1024).toFixed(2)} KB`
+        : `${(memoryBytes / (1024 * 1024)).toFixed(2)} MB`
+      : "Unknown";
+
     await client.quit();
 
-    // Return the data as JSON
     return NextResponse.json({
       key,
       type,
       value,
-      ttl,
+      ttl: ttl === -1 ? "No expiry" : ttl === -2 ? "Key not found" : `${ttl} seconds`,
+      expireAt,
+      memoryUsage: memoryUsageFormatted,
     });
   } catch (error) {
     console.error("Redis fetch error:", error);

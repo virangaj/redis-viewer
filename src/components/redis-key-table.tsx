@@ -5,7 +5,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RedisKey } from "@/models/models";
+import { RedisKey } from "@/types/types";
 import RedisKeyTableRow from "./redis-key-table-row";
 
 interface RedisKeyTableProps {

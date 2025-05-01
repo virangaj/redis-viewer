@@ -1,4 +1,4 @@
-import { RedisKey } from "@/models/models";
+import { RedisKey } from "@/types/types";
 import { RotateCw } from "lucide-react";
 import RedisKeyTable from "./redis-key-table";
 import { useEffect, useState } from "react";

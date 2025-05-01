@@ -6,11 +6,11 @@ interface KeyDetails {
   ttl: number;
 }
 
-interface RedisKeyViewerProps {
+interface RedisKeyDetailsProps {
   keyDetails: KeyDetails;
 }
 
-export default function RedisKeyViewer({ keyDetails }: RedisKeyViewerProps) {
+export default function RedisKeyDetails({ keyDetails }: RedisKeyDetailsProps) {
   return (
     <div className="border p-4 mb-4 bg-gray-100 rounded">
       <h2 className="text-2xl mb-2">Key: {keyDetails.key}</h2>

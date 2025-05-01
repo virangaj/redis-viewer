@@ -1,8 +1,10 @@
-import { RedisKey } from "@/models/models";
+import { RedisKey } from "@/types/types";
 import { Trash2, SquareArrowOutUpRight } from "lucide-react";
 import React from "react";
 import { TableBody, TableRow, TableCell } from "./ui/table";
 import TableIcon from "./table-icon";
+import DataTypeViewer from "./data-type-viewer";
+import { formatDuration } from "@/utils/utils";
 
 interface RedisKeyTableProps {
   data: RedisKey;
@@ -24,8 +26,10 @@ const RedisKeyTableRow = ({
     <TableBody key={index}>
       <TableRow>
         <TableCell>{data.key}</TableCell>
-        <TableCell>{data.type}</TableCell>
-        <TableCell>{data.ttl}</TableCell>
+        <TableCell>
+          <DataTypeViewer type={data.type} />
+        </TableCell>
+        <TableCell>{data.ttl < 0 ? "no limit" : formatDuration(data.ttl)}</TableCell>
         <TableCell>{data.memoryFormatted}</TableCell>
         <TableCell>
           <div className="flex items-center gap-4">

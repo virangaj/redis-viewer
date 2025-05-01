@@ -12,3 +12,8 @@ export interface KeyDetails {
   value: unknown;
   ttl: number;
 }
+
+export interface IRedisConnections {
+  port: number;
+  running: boolean;
+}

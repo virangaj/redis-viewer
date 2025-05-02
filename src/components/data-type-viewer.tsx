@@ -21,7 +21,7 @@ const DataTypeViewer: FC<Props> = ({ type, badgeOnly }) => {
   return (
     <div>
       <Badge className={cn(typeBadgeColors[type] || typeBadgeColors.default)}>
-        {badgeOnly ? "" : type.toUpperCase()}
+        {badgeOnly ? "" : type.toLowerCase()}
       </Badge>
     </div>
   );

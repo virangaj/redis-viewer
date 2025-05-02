@@ -1,7 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Badge } from "./ui/badge";
+import { fetchSingleRedisValueApi } from "@/service/api";
+import { ISingleRedisKeyData } from "@/types/types";
 import { X } from "lucide-react";
-import { KeyDetails } from "@/types/types";
+import { useEffect, useState } from "react";
+import { Badge } from "./ui/badge";
+import ViewSingleKeyData from "./view-single-key-data";
 
 interface ViewKeyDataProps {
   selectedKey: string | null;
@@ -9,9 +11,8 @@ interface ViewKeyDataProps {
 }
 
 function ViewKeyData({ selectedKey, setSelectedKey }: ViewKeyDataProps) {
-  const [selectedKeyData, setSelectedKeyData] = useState<KeyDetails | null>(
-    null
-  );
+  const [selectedKeyData, setSelectedKeyData] =
+    useState<ISingleRedisKeyData | null>(null);
 
   useEffect(() => {
     if (selectedKey !== null) {
@@ -19,10 +20,14 @@ function ViewKeyData({ selectedKey, setSelectedKey }: ViewKeyDataProps) {
       console.log(selectedKeyData);
     }
   }, [selectedKey]);
+
   const viewValue = async (key: string) => {
-    const response = await fetch(`/api/key/${key}`);
-    const data = await response.json();
-    setSelectedKeyData(data);
+    try {
+      const response = await fetchSingleRedisValueApi(key);
+      setSelectedKeyData(response);
+    } catch (e) {
+      console.log(e);
+    }
   };
   return (
     <div>
@@ -36,6 +41,9 @@ function ViewKeyData({ selectedKey, setSelectedKey }: ViewKeyDataProps) {
           onClick={() => setSelectedKey("")}
         />
       </div>
+      {selectedKeyData && (
+        <ViewSingleKeyData redisData={selectedKeyData && selectedKeyData} />
+      )}
     </div>
   );
 }

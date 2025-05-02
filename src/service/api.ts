@@ -1,4 +1,8 @@
-import { IRedisConnections, KeyDetails, RedisKey } from "@/types/types";
+import {
+  IRedisConnections,
+  ISingleRedisKeyData,
+  RedisKey,
+} from "@/types/types";
 
 const fetchKeysApi = async (): Promise<RedisKey[]> => {
   console.log("Calling get apis function");
@@ -10,16 +14,18 @@ const fetchKeysApi = async (): Promise<RedisKey[]> => {
   return json.data as RedisKey[];
 };
 
-const viewKeyApi = async (key: string): Promise<KeyDetails> => {
-  const response = await fetch(`/api/key/${key}`);
-  const data = await response.json();
-  return data as KeyDetails;
-};
-
 const fetchConnectionsApi = async (): Promise<IRedisConnections[]> => {
   const response = await fetch("/api/check-redis");
   const data = await response.json();
   return data as IRedisConnections[];
 };
 
-export { fetchKeysApi, viewKeyApi, fetchConnectionsApi };
+const fetchSingleRedisValueApi = async (
+  key: string
+): Promise<ISingleRedisKeyData> => {
+  const response = await fetch(`/api/key/${key}`);
+  const data = await response.json();
+  return data;
+};
+
+export { fetchConnectionsApi, fetchKeysApi, fetchSingleRedisValueApi };

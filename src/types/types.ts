@@ -17,3 +17,13 @@ export interface IRedisConnections {
   port: number;
   running: boolean;
 }
+
+export interface ISingleRedisKeyData {
+  key: string;
+  type: string;
+  data: Record<string, string>;
+  options: Record<string, string>;
+  ttl: string;
+  expireAt: string | null;
+  memoryUsage: string;
+}

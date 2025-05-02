@@ -15,34 +15,60 @@ export async function GET(
     const client = await getRedisClient();
 
     const type = await client.type(key);
-    let value: unknown;
+    let data: unknown;
     logger.info(`Fetched key: ${key}`);
 
     switch (type) {
       case "string":
-        value = await client.get(key);
+        data = await client.get(key);
+        try {
+          data = JSON.parse(data as string);
+        } catch {
+          // keep as plain string if not JSON
+        }
         break;
       case "list":
-        value = await client.lRange(key, 0, -1);
+        data = await client.lRange(key, 0, -1);
         break;
       case "hash":
-        value = await client.hGetAll(key);
+        const hashData = await client.hGetAll(key);
+        data = hashData["data"];
         break;
       case "set":
-        value = await client.sMembers(key);
+        data = await client.sMembers(key);
         break;
       case "zset":
-        value = await client.zRangeWithScores(key, 0, -1);
+        data = await client.zRangeWithScores(key, 0, -1);
         break;
       default:
-        value = "Unsupported type or key not found";
+        data = "Unsupported type or key not found";
+    }
+
+    // Extract options if available
+    const options: Record<string, unknown> = {};
+    if (typeof data === "object" && data !== null && !Array.isArray(data)) {
+      const optionKeys = [
+        "processedOn",
+        "finishedOn",
+        "timestamp",
+        "priority",
+        "name",
+        "returnvalue",
+        "delay",
+        "opts",
+      ];
+      for (const k of optionKeys) {
+        if (Object.prototype.hasOwnProperty.call(data, k)) {
+          options[k] = (data as Record<string, unknown>)[k];
+        }
+      }
     }
 
     const ttl = await client.ttl(key); // in seconds
     const memoryBytes = await client.memoryUsage(key); // in bytes
 
-    // Formatting
-    const expireAt = ttl > 0 ? new Date(Date.now() + ttl * 1000).toISOString() : null;
+    const expireAt =
+      ttl > 0 ? new Date(Date.now() + ttl * 1000).toISOString() : null;
     const memoryUsageFormatted = memoryBytes
       ? memoryBytes < 1024
         ? `${memoryBytes} Bytes`
@@ -56,8 +82,14 @@ export async function GET(
     return NextResponse.json({
       key,
       type,
-      value,
-      ttl: ttl === -1 ? "No expiry" : ttl === -2 ? "Key not found" : `${ttl} seconds`,
+      data,
+      options: Object.keys(options).length > 0 ? options : null,
+      ttl:
+        ttl === -1
+          ? "No expiry"
+          : ttl === -2
+          ? "Key not found"
+          : `${ttl} seconds`,
       expireAt,
       memoryUsage: memoryUsageFormatted,
     });

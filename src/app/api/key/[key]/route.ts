@@ -32,7 +32,7 @@ export async function GET(
         break;
       case "hash":
         const hashData = await client.hGetAll(key);
-        data = hashData["data"];
+        data = hashData;
         break;
       case "set":
         data = await client.sMembers(key);
@@ -56,12 +56,14 @@ export async function GET(
         "returnvalue",
         "delay",
         "opts",
+        "stacktrace"
       ];
       for (const k of optionKeys) {
         if (Object.prototype.hasOwnProperty.call(data, k)) {
           options[k] = (data as Record<string, unknown>)[k];
         }
       }
+      data = data["data"]
     }
 
     const ttl = await client.ttl(key); // in seconds

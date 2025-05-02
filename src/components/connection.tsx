@@ -21,7 +21,6 @@ export default function Connection() {
   const [lastRefresh, setLastRefresh] = useState(new Date());
   const [leftWidth, setLeftWidth] = useState(800); // initial width in px
   const [searchText, setSearchText] = useState<string>("");
-  const [redisKeyMap, setRedisKeyMap] = useState<Map<string, unknown>>();
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
 
@@ -131,10 +130,11 @@ export default function Connection() {
 
   const fetchKeys = async () => {
     setKeys([]);
+    setSelectedKey("");
     try {
       const fetchedKeys = await fetchKeysApi();
       setKeys(fetchedKeys);
-      setLastRefresh(new Date())
+      setLastRefresh(new Date());
     } catch (err) {
       console.log(err);
       setKeys([]);
@@ -142,6 +142,7 @@ export default function Connection() {
   };
 
   const viewValue = async (key: string) => {
+    setSelectedKey("");
     setSelectedKey(key);
   };
 
